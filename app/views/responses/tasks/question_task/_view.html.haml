@@ -1,0 +1,12 @@
+= form_with url: create_responses_path, method: :post, local: true do 
+  - @task.questions.order(:sort).each do |q|
+    = fields_for 'responses[]', q do |f|
+      = label_tag q.prompt
+      = f.fields_for q.responses.new do |r|
+        - @r = r
+        = render new_responses_partial(q)
+        = r.hidden_field :participant_id, value: params[:participant_id]
+        = r.hidden_field :question_id, value: q.id
+    %br
+  .text-center
+    = submit_tag 'Submit', class: 'btn btn-primary'

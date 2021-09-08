@@ -1,0 +1,25 @@
+%br
+%br
+%table.table{:id=>"statistics_table"}
+  %thead.thead-light
+    %tr
+      %th.col{:style=>"width: 25%"}
+        Total responses
+      %th.col{:style=>"width: 25%"}
+        Fully finished responses
+      %th.col{:style=>"width: 25%"}
+        Finished/Total [%]
+      %th.col{:style=>"width: 25%"}
+        Last response
+  %tbody
+    %tr
+      %td{:id=>"total_responses"}
+        = @total_responses
+      %td{:id=>"fully_finished"}
+        = @fully_finished
+      %td
+        = ( @fully_finished.to_f / @total_responses * 100 ).round(2)
+      %td{:id=>"last_response"}
+        = @last_response
+
+%br

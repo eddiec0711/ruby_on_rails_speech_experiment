@@ -1,0 +1,16 @@
+.d-flex
+  - if taskable.allowed_tasks.include? 'QuestionTask'
+    .px-2
+      = link_to 'Add question page', new_question_task_path(:taskable_id => taskable.id, :taskable_type => taskable.class), class: 'btn btn-outline-primary', data_toggle: "tooltip", title: QuestionTask.tooltip
+
+  - if taskable.allowed_tasks.include? 'SampleTask'
+    .px-2
+      = link_to 'Add audio sample', new_sample_task_path(:taskable_id => taskable.id, :taskable_type => taskable.class), class: 'btn btn-outline-primary', data_toggle: "tooltip", title: SampleTask.tooltip
+
+  - if taskable.allowed_tasks.include? 'ListeningTask'
+    .px-2
+      = link_to 'Add audio hearing', new_listening_task_path(:taskable_id => taskable.id, :taskable_type => taskable.class), class: 'btn btn-outline-primary', data_toggle: "tooltip", title: ListeningTask.tooltip
+
+  - if taskable.allowed_tasks.include? 'ClickTask'
+    .px-2
+      = link_to 'Add reaction task', new_click_task_path(:taskable_id => taskable.id, :taskable_type => taskable.class), class: 'btn btn-outline-primary', data_toggle: "tooltip", title: ClickTask.tooltip

@@ -1,0 +1,10 @@
+.text-center
+  %h2
+    = @sample.name
+  %h5
+    A voice sample is provided for the next few tasks. Please complete each task according to the instructions given.
+  %br
+  = link_to 'Begin', next_task(@sample, params[:participant_id]), class: "btn btn-primary", role: "button"
+  %br
+  %p.text-muted
+    *Click Begin when you are ready.

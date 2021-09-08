@@ -1,0 +1,13 @@
+- @view = view
+%tr
+  = render 'tasks/question_tasks/questions/prompt/view'
+  %td
+    From: 
+    = view.scale.low
+    %br
+    Number of options: 
+    = view.scale.bins
+    %br
+    To: 
+    = view.scale.high
+    

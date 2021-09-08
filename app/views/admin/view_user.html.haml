@@ -1,0 +1,70 @@
+.modal-dialog
+  .modal-content
+
+    .modal-header
+      %h4.modal-title Showing user
+      %button.close{ type: :button, data: { dismiss: :modal } }
+        %span &times;
+    .modal-body
+
+      %table.table
+        %tbody
+          %tr 
+            %th{scope:'row'}
+              Id
+            %td
+              = @user.id
+          %tr
+            %th{scope:'row'}
+              Email
+            %td
+              = @user.email
+          %tr 
+            %th{scope:'row'}
+              Name
+            %td
+              = @user.name
+          %tr 
+            %th{scope:'row'}
+              Institution
+            %td
+              = @user.institution
+          %tr 
+            %th{scope:'row'}
+              Country
+            %td
+              = @user.country
+          %tr 
+            %th{scope:'row'}
+              Faculty
+            %td
+              = @user.faculty
+          %tr 
+            %th{scope:'row'}
+              Research level
+            %td
+              = @user.research_level
+          %tr 
+            %th{scope:'row'}
+              Funded
+            %td
+              = @user.funded
+          %tr 
+            %th{scope:'row'}
+              Mailing list
+            %td
+              = @user.mailing_list
+          %tr 
+            %th{scope:'row'}
+              Registration date
+            %td
+              = @user.created_at
+          %tr 
+            %th{scope:'row'}
+              Number of experiments
+            %td
+              = @user.experiments.length
+    .modal-footer
+      .pull-left
+        = dismiss_modal_button
+      

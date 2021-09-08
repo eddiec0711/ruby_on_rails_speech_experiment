@@ -1,0 +1,7 @@
+%h2
+  Create
+  = @task.specific.class.name.underscore.humanize.downcase
+
+= form_with model: @task, url: create_task_path(@task), scope: :task, local: true do |f|
+  = f.text_field :name
+  = f.submit "Create " + @task.specific.class.name.underscore.humanize.downcase, class: "btn btn-outline-secondary"

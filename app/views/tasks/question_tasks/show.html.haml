@@ -1,0 +1,35 @@
+.task_header
+  = render 'tasks/partials/task_back_button'
+  = render 'tasks/partials/task_header'
+    
+%h3
+  Questions
+- unless @task.taskable.complete
+  %div.d-flex.justify-content-around.mt-3.mb-3
+    = link_to "Add text question", add_question_path(:id => @task.id, :type => 'text'), method: 'post', local: true, class: 'btn btn-outline-primary'
+    = link_to "Add dropdown box", add_question_path(:id => @task.id, :type => 'dropdown'), method: 'post', local: true, class: 'btn btn-outline-primary'
+    = link_to "Add rating scale", add_question_path(:id => @task.id, :type => 'rating'), method: 'post', local: true, class: 'btn btn-outline-primary'
+    = link_to "Add checkboxes", add_question_path(:id => @task.id, :type => 'checkbox'), method: 'post', local: true, class: 'btn btn-outline-primary'
+    = link_to "Add radio buttons", add_question_path(:id => @task.id, :type => 'radio'), method: 'post', local: true, class: 'btn btn-outline-primary'
+
+%table.table
+  %thead
+    %tr
+      - unless @task.taskable.complete
+        %th{scope:'col', width: "2em"}
+      %th{scope:'col'} Question prompt
+      %th{scope:'col'} Question type
+      %th{scope:'col'} Options
+      - if not @task.taskable.complete
+        %th{scope:'col'} Delete
+  - if @task.taskable.complete
+    %tbody
+      = render question_view_partial(@task.questions.order(:sort)), as: :question
+  - else
+    %tbody.sortable
+      = render question_edit_partial(@task.questions.order(:sort)), as: :question
+
+:javascript
+  $(function() {
+    $('.sortable').railsSortable();
+  });

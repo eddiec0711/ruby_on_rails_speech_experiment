@@ -1,0 +1,11 @@
+- if @task.taskable.class == SampleTask
+  .text-center 
+    %h2
+      = @task.taskable.name
+
+.card{style: "width: 70%; margin: auto;"}
+  .card-body{style: "margin: auto 10% auto 10%"}
+    %h2.text-center
+      = @task.name
+    = render task_view_partial(@task)
+%br

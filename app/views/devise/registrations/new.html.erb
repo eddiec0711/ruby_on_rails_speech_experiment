@@ -1,0 +1,59 @@
+<%-# TODO change to haml -%>
+<h2>Sign up</h2>
+
+<%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+  <%= f.error_notification %>
+
+  <div class="form-inputs">
+    <%= f.input :name,
+                required: true,
+                autofocus: true,
+                input_html: { autocomplete: "name" }%>
+    <%= f.input :institution,
+                required: false,
+                input_html: { autocomplete: "institution" }%>
+    <%= f.input :country,
+                required: true,
+                input_html: { autocomplete: "country" }%>
+    <%= f.input :funded,
+                required: false,
+                as: :boolean,
+                input_html: { autocomplete: "funded" }%>
+    <%= f.input :email,
+                required: true,
+                input_html: { autocomplete: "email" }%>
+    <%= f.input :password,
+                required: true,
+                hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length),
+                input_html: { autocomplete: "new-password" } %>
+    <%= f.input :password_confirmation,
+                required: true,
+                input_html: { autocomplete: "new-password" } %>
+    <%= f.input :mailing_list,
+                required: false,
+                as: :boolean,
+                input_html: { autocomplete: "mailing_list" }%>
+    <%= f.input :faculty,
+                required: false,
+                input_html: { autocomplete: "faculty" }%>
+    <% @r_levels = ['Undergraduate', 'Postgraduate', 'Staff'] %>
+    <%= f.input :research_level,
+                required: true,
+                as: :select,
+                collection: @r_levels,
+                input_html: { autocomplete: ":research_level" }%>
+
+    <br><br><hr>
+    <%= f.input :registration_code,
+                required: true,
+                hint: "The code you received from the invitator e.g. ce7478e5560d3531ab960a759b3b1727",
+                input_html: {value: @url_reg_code} %>
+  </div>
+
+  <div class="btn btn-light">
+    <%= f.button :submit, "Sign up" %>
+  </div>
+<% end %>
+<br>
+If you already have an account:
+<%= render "devise/shared/links" %>

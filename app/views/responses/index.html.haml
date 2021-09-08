@@ -1,0 +1,27 @@
+%h2.text-center
+  = @experiment.name
+
+.card.text-center
+  .card-body
+    %h4
+      Description
+    %p
+      = simple_format(@experiment.description)
+
+.card.text-center
+  .card-body
+    %h4
+      Terms
+    %p
+      = simple_format(@experiment.terms)
+
+%br
+.text-center
+  %form{action: next_task(@experiment, @participant_id)}
+    .form-group
+      .form-check
+        %input.form-check-input{type: "checkbox", name: "check", required: true}
+        %label.form-check-label
+          Click here to indicate that you have read and agree to the above terms and you have not participated in this or a similar experiment before.
+    %button.btn.btn-primary{type: "submit"}
+      Start experiment

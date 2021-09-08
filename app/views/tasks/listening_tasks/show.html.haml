@@ -1,0 +1,12 @@
+= render 'tasks/partials/task_back_button'
+= render 'tasks/partials/task_header'
+
+- if @task.taskable.complete
+  Maximum Listens: 
+  = @task.specific.listens
+- else
+  = form_with model: @task.specific, url: edit_listens_path(:id => @task.specific.id), scope: :task, local: true do |f|
+    Maximum Listens: 
+    = f.number_field :listens, size: 2
+    = f.submit "Change maximum listens", class: "btn btn-outline-secondary"
+

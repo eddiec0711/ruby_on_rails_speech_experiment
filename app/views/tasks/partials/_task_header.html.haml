@@ -1,0 +1,25 @@
+%br
+- if @task.taskable.complete
+  %h5 
+    Page name:
+  %h3
+    = @task.name
+- else
+  .container
+    .row
+      .col-sm-10.border-right.p-3
+        %h5 
+          Task name:
+        = form_with model: @task, url: task_path(@task.acting_as), scope: :task, local: true do |f|
+          %h3
+            = f.text_field :name
+            %br
+          = f.submit "Save name", class: "btn btn-outline-secondary"
+      .col-sm-2.p-3.mt-3
+        
+        = link_to('Delete this task', task_path(@task.acting_as), method: 'delete', data: {confirm: 'Are you sure? This action cannot be undone.'}, class: 'btn btn-outline-danger')
+        
+  
+%br
+
+  

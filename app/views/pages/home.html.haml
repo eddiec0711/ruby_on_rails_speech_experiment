@@ -1,0 +1,22 @@
+- content_for :title, "Home"
+
+.jumbotron.mb-3
+  %h1.display-5 Welcome to SLIC
+  %p.lead SLIC - Salient Language In Context
+  %p
+    This is a research software which allows to collect data about to which features of language people pay attention to as they hear it in real time, and then provide listeners with the ability to review their reactions and justify why they reacted.
+.card.mb-3.text-center
+  .card-header
+    If you are researcher
+  .card-body
+    %p To add or manage experiments log in to your account using 'Log in' button in top-right corner.
+
+
+
+  %br
+  %p
+    To access the website's documentation please follow this link:
+    = link_to :documentation, title: "See the documentation", class: 'navbar-brand hidden-sm' do
+      = icon 'fas', 'book'
+      User guide
+

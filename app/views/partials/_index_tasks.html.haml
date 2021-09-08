@@ -1,0 +1,49 @@
+%h3
+  Tasks
+- unless taskable.complete
+  = render partial: 'partials/add_tasks', locals: {taskable: taskable}
+
+- unless taskable.tasks.size == 0
+  %h3
+  
+  %table.table.table-striped
+    %thead
+      %tr
+        - if taskable.complete
+          %th{scope:'col', width: '2em'} Random
+        - else
+          %th{scope:'col', width: '2em'}
+          %th{scope:'col', width: '2em'} Randomise
+        %th{scope:'col'} Name
+        %th{scope:'col'} Type
+        - unless taskable.complete
+          %th{scope:'col'} Delete
+
+    %tbody{taskable.complete ? {} : {class: "sortable"}}
+          
+      - taskable.tasks.order(:sort).each do |task|
+        - t = task.specific
+        %tr{id: task.sortable_id, data: {task: t.name}}
+          - if taskable.complete
+            %td{scope:'row'}
+              = fields_for task do |f|
+                = f.check_box :random, {disabled: true}
+          - else
+            %td
+              %i.fas.fa-bars.grabbable
+          
+            %td{scope:'row'}
+              = form_with model: task, url: randomise_task_path(task), scope: :task do |f|
+                = f.check_box :random, {onChange:"this.form.submit()"}
+          %td
+            = link_to t.name, task_path(task)
+          %td
+            = t.type_name
+          - unless taskable.complete
+            %td
+              = link_to('Delete', task_path(task), method: 'delete', data: {confirm: 'Are you sure? This action cannot be undone.'}, class: 'btn btn-outline-danger btn-sm')
+
+:javascript
+  $(function() {
+    $('.sortable').railsSortable();
+  });

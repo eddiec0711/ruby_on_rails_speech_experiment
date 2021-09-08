@@ -1,0 +1,363 @@
+.text-center
+
+  %h5
+    = simple_format(@task.prompt)
+  .data{"authenticity_token"=> "#{@token}", "server_address" => "#{@address}", "data-transcript" => "#{@transcript}", "click_task_id" => "#{@task.id}", "participant_id" => "#{@participant_id}", "calibration" => "#{@sample.calibration?}"} 
+
+  .player_hideable
+    .player
+      = audio_tag rails_blob_url @sample.audio
+    %br
+    %canvas#progress{:height => "100", :width => "500"}
+
+
+    %br/
+    %span#current-time
+    \/
+    %span#duration
+    %br/
+    
+    .btn.btn-outline-secondary#audioControl{:onclick => "audioEl['play']()"} Play
+    .btn.btn-outline-secondary#click{:onclick => "clickRecorder()"} Click
+  .answers
+
+%br
+.text-center
+  .next
+    = link_to 'Next', next_task(@task.taskable, params[:participant_id]), class: "btn btn-primary", role: "button"
+%br
+
+:javascript
+    var endTime = 0;
+    var audioManagers = [];
+    var clickTimes = [];
+    var annotations = [];
+  	var canvasWidth = 500;
+  	var audioEl = $(".player").children('audio')[0];
+  	var canvas = document.getElementById("progress").getContext('2d');
+  	var only_once = true;
+
+    //var color = $("#click").css('background-color');
+
+    $(".next").hide();
+
+    if($(".data").attr("calibration") == 'false'){
+        //console.log($(".next").children()[0]);
+        load_transcript();
+    }
+
+    console.log($(".data").attr("server_address"))
+
+    function stopAudio(){
+        if(audioEl.currentTime >= endTime){
+            audioEl.pause();
+            audioEl.currentTime = 0;
+        }
+    }
+    class SingleClickAudioManager {
+        constructor(clickTime, duration, name){
+        
+            this.start = Math.max(0, clickTime-4);
+            this.end = Math.min(duration, clickTime+1);
+            this.transcript = "";
+            this.time = clickTime;
+            
+            for (i = 0; i < annotations.length; i++) {
+                if(this.end*1000 > annotations[i].start && this.start*1000 < annotations[i].end && annotations[i].text != null){
+  	                this.transcript += annotations[i].text + ' ';
+                }
+            }
+            this.name = name;
+            this.buttonName = "button" + name;
+            this.canvasName = "canvas" + name;
+            this.divName = "AudioManager" + name;
+        }
+        playAudio(){
+            audioEl.currentTime = audioManagers[this.id.slice(6)].start;
+            //console.log(audioManagers[this.id.slice(6)])
+            //console.log(audioManagers)
+            endTime = audioManagers[this.id.slice(6)].end;
+            audioEl.ontimeupdate = stopAudio;
+            audioEl.play();
+        }
+        render(target){
+            $('<br></br>').appendTo($(target));
+            $('<div/>', {
+                id: this.divName,
+            }).appendTo($(target));
+            
+            var b=$('<input/>').attr({
+                      type: "button",
+                      id: this.buttonName,
+                      value: 'Play'
+                  });
+            b.click(this.playAudio);
+            b.appendTo($(target));
+            
+            //console.log(this.buttonName)
+
+            var transcript_html = '<p>Transcript: ' + this.transcript + '</p>';
+            var timestamp_html = '<p>Time: ' + this.time.toFixed(2) + 's</p>';
+            $('<br></br>').appendTo($(target));
+            $(transcript_html).appendTo($(target));
+            $(timestamp_html).appendTo($(target));
+            $('<br></br>').appendTo($(target));
+            
+            $('<p>Please explain why you clicked at that time:</p>').appendTo($(target));
+            var text_input=$('<input/>').attr({
+                      type: "text",
+                      id: "text_field" + this.name,
+                      value: ''
+                  });
+            text_input.appendTo($(target));
+
+            $('<br></br>').appendTo($(target));
+            $("<small>I clicked at that time by an accident</small>").appendTo($(target));
+            var c=$('<input/>').attr({
+                      type: "checkbox",
+                      id: "accident_checkbox" + this.name,
+                      value: "I clicked at that time by an accident"
+                  });
+            c.appendTo($(target));
+
+            $('<br></br>').appendTo($(target));
+            $("<small>I don't know</small>").appendTo($(target));
+            c=$('<input/>').attr({
+                      type: "checkbox",
+                      id: "dontknow_checkbox" + this.name,
+                      value: "I don't know"
+                  });
+            c.appendTo($(target));
+            $('<hr>').appendTo($(target));
+        }
+        
+    };
+    
+  	
+    $(".player").children('audio')[0].ontimeupdate = updateBar;
+
+  	audioEl.addEventListener('loadedmetadata', function() {
+  	  var duration = audioEl.duration
+  	  var currentTime = audioEl.currentTime
+  	  document.getElementById("duration").innerHTML = convertElapsedTime(duration)
+  	  document.getElementById("current-time").innerHTML = convertElapsedTime(currentTime)
+  	  canvas.fillRect(0, 0, canvasWidth, 50);
+  	});
+  	
+    function load_transcript(){
+        var transcript_string = $(".data").attr("data-transcript");
+        parser = new DOMParser();
+        xmlDoc = parser.parseFromString(transcript_string,"text/xml");
+        var document = xmlDoc.getElementsByTagName("ANNOTATION_DOCUMENT")[0];
+        var times = document.getElementsByTagName("TIME_ORDER")[0].getElementsByTagName("TIME_SLOT");
+        
+        var slots = {};
+        
+        for (i = 0; i < times.length; i++) {
+        slots[times[i].getAttribute("TIME_SLOT_ID")] =  times[i].getAttribute("TIME_VALUE");
+        }
+        var cont;
+        if(document.getElementsByTagName("TIER")[1] !== undefined){
+            cont = document.getElementsByTagName("TIER")[1].getElementsByTagName("ANNOTATION");
+        }
+        else{
+            cont = document.getElementsByTagName("TIER")[0].getElementsByTagName("ANNOTATION");
+        }
+
+        for (i = 0; i < cont.length; i++) {
+          var annotation = {
+                start: slots[cont[i].getElementsByTagName("ALIGNABLE_ANNOTATION")[0].getAttribute("TIME_SLOT_REF1")],
+                end: slots[cont[i].getElementsByTagName("ALIGNABLE_ANNOTATION")[0].getAttribute("TIME_SLOT_REF2")],
+                text: null,        		
+          };
+          if (typeof cont[i].getElementsByTagName("ALIGNABLE_ANNOTATION")[0].getElementsByTagName("ANNOTATION_VALUE")[0].childNodes[0] !== 'undefined'){
+                    annotation.text = cont[i].getElementsByTagName("ALIGNABLE_ANNOTATION")[0].getElementsByTagName("ANNOTATION_VALUE")[0].childNodes[0].nodeValue;
+                }
+        annotations.push(annotation);
+        }
+        //console.log(annotations);
+    }
+  	
+    function clickRecorder() {
+        //console.log(audioEl.currentTime);
+        clickTimes.push(audioEl.currentTime);
+        //console.log(clickTimes);
+    }  	
+    
+    function displayClicks(clicksArray) {
+        $(".player_hideable").hide();
+        for (var i=0; i < clicksArray.length; i++){
+            audioManagers.push(new SingleClickAudioManager(clicksArray[i], audioEl.duration, i));
+            //var para = document.createElement("button");
+            //var node = document.createTextNode("Play" + i);
+            //para.appendChild(node);
+            audioManagers[i].render(".answers");    
+        }
+        $('<br></br><br></br>').appendTo($(".answers"));
+        var b = $('<input/>').attr({
+                      type: "button",
+                      id: 'submit',
+                      value: 'Next',
+                      class: "btn btn-primary"
+                  });
+        b.click(send_all_responses);
+        b.appendTo($(".answers"));
+    }
+
+
+    function displayWhyYouDidNotClickExplanation(){
+        $(".player_hideable").hide();
+
+        $('<br></br>').appendTo($(".answers"));    
+        $('<p>Please explain why you did not click at all:</p>').appendTo($(".answers"));
+        var text_input=$('<input/>').attr({
+                  type: "text",
+                  id: "no_clicks_text_field",
+                  value: ''
+              });
+        text_input.appendTo($(".answers"));
+
+        $('<br></br><br></br>').appendTo($(".answers"));
+        var b = $('<input/>').attr({
+                      type: "button",
+                      id: 'submit',
+                      value: 'Next',
+                      class: "btn btn-primary"
+                  });
+        b.click(send_no_clicks_response);
+        b.appendTo($(".answers"));
+    }
+  	
+  	function updateBar() {
+  	    canvas.clearRect(0, 0, canvasWidth, 50)
+  	    canvas.fillStyle = "#000";
+  	    canvas.fillRect(0, 0, canvasWidth, 50)
+  	  
+  	    var currentTime = audioEl.currentTime
+  	    var duration = audioEl.duration
+  	  
+  	    //once the audio is played, the 'justification' section is displayed
+  	    //only_once added because there was a bug causing everything to be displayed multiple times
+  	    if (currentTime === duration && only_once == true) {
+            only_once = false;
+            
+            if($(".data").attr("calibration") == 'true'){
+                for (i = 0; i < clickTimes.length; i++){
+                    send_click_response(clickTimes[i], "CALIBRATION", false, false);
+                }
+                $(".next").show()
+            }
+            else if(clickTimes.length == 0){
+                displayWhyYouDidNotClickExplanation();
+            }
+            else{
+                displayClicks(clickTimes);
+            }
+  	    }
+  	  
+  	    document.getElementById("current-time").innerHTML = convertElapsedTime(currentTime)
+  	  
+  	    var percentage = currentTime / duration
+
+  	    var progress = (canvasWidth * percentage)
+  	    canvas.fillStyle = "#FF0000"
+  	    canvas.fillRect(0, 0, progress, 50)
+
+            for (i = 0; i < clickTimes.length; i++){
+                var position = clickTimes[i] / duration * canvasWidth;
+                canvas.fillStyle = "#FFA500";
+                canvas.fillRect(position, 25, 5, 25);
+            }
+
+
+
+  	}
+  	
+  	function convertElapsedTime(inputSeconds) {
+  	  var seconds = Math.floor(inputSeconds % 60)
+  	  if (seconds < 10) {
+  		seconds = "0" + seconds
+  	  }
+  	  var minutes = Math.floor(inputSeconds / 60)
+  	  return minutes + ":" + seconds
+  	}
+
+    function get_answer(id){
+        var answer;
+        var from_checkbox;
+        if($("#accident_checkbox" + id).prop("checked")){
+            answer = $("#accident_checkbox" + id).val();
+            from_checkbox = true;
+        }
+        else if($("#dontknow_checkbox" + id).prop("checked")){
+            answer = $("#dontknow_checkbox" + id).val();
+            from_checkbox = true;
+        }
+        else{
+            answer = $("#text_field" + id).val();
+            from_checkbox = false;
+        }
+
+        return [answer, from_checkbox];
+    }
+
+    function send_click_response(time, answer, no_clicks, from_checkbox){
+        console.log("sending a request");
+        console.log($(".data").attr("server_address"));
+        var req = new XMLHttpRequest();
+        var path = "/click_responses";
+        console.log(path);
+        req.open("POST", path, true);
+        req.setRequestHeader('X-CSRF-Token', $(".data").attr("authenticity_token"));
+        req.setRequestHeader('x-requested-with', 'XMLHttpRequest');
+        req.setRequestHeader('Content-Type', 'application/json');
+        console.log(req);
+        req.send(JSON.stringify([{
+            time: time,
+            answer: answer,
+            participant_id: parseInt($(".data").attr("participant_id")),
+            click_task_id: parseInt($(".data").attr("click_task_id")),
+            no_clicks_explanation: no_clicks,
+            from_checkbox: from_checkbox,
+        }]));
+    }
+
+    function send_no_clicks_response(){
+        answer = $("#no_clicks_text_field").val();
+        send_click_response(0, answer, true, false);
+        $(".next").children()[0].click();
+    }
+
+    function generate_click_response(time, answer, no_clicks, from_checkbox){
+        return {
+            time: time,
+            answer: answer,
+            participant_id: parseInt($(".data").attr("participant_id")),
+            click_task_id: parseInt($(".data").attr("click_task_id")),
+            no_clicks_explanation: no_clicks,
+            from_checkbox: from_checkbox,
+        };
+    }
+
+    function generate_all_responses(){
+        var all_responses = [];
+        for (i = 0; i < clickTimes.length; i++){
+            var answer = get_answer(i);
+            all_responses.push(generate_click_response(clickTimes[i], answer[0], false, answer[1]));
+        }
+        return all_responses;
+    }
+
+    function send_all_responses(){
+        var req = new XMLHttpRequest();
+        var path = "/click_responses";
+        req.open("POST", path, true);
+        req.setRequestHeader('X-CSRF-Token', $(".data").attr("authenticity_token"));
+        req.setRequestHeader('x-requested-with', 'XMLHttpRequest');
+        req.setRequestHeader('Content-Type', 'application/json');
+        req.send(JSON.stringify(generate_all_responses()));
+        console.log("sent to");
+        console.log(path);
+        setTimeout(() => { $(".next").children()[0].click();; }, 2000);
+        //$(".next").children()[0].click();
+    }

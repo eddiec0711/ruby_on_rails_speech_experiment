@@ -1,0 +1,10 @@
+%h2 Edit Experiment terms
+
+= simple_form_for @experiment, url: update_terms_path(@experiment) do |f|
+  = f.error_notification
+
+  .form-inputs
+    = f.input :terms
+
+  .form-actions
+    = f.button :submit, "Edit Experiment terms"

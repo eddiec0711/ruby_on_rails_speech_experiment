@@ -1,0 +1,67 @@
+= link_to experiments_path, class: 'btn btn-outline-primary' do
+  = icon 'fas', 'reply'
+  Back to all my experiments
+%hr
+%h3
+  = @experiment.name
+
+%p
+  = @experiment.description
+- if @experiment.complete
+  %h3 Link:
+  %p.p-3.border.m-2
+    = link_to @experiment.link, @experiment.link
+  %br
+  = link_to 'Download results', download_experiment_path(@experiment), class: 'btn btn-outline-primary'
+  = link_to 'View consent terms', "#", data: {toggle: "modal", target: "#terms"}, class: 'btn btn-outline-primary'
+  = render partial: 'partials/experiment_stat_table', locals: {total_responses: @total_responses,
+      fully_finished: @fully_finished, latest_response: @latest_response}
+- else 
+  .container
+    .row
+      .col-sm-10.border-right.p-3
+
+        = link_to 'Edit name and description', edit_experiment_path(@experiment), class: 'btn btn-outline-primary'
+        = link_to 'Edit consent terms', edit_terms_path(@experiment), class: 'btn btn-outline-primary'
+
+        - unless @experiment_errors.nil?
+          .publish_errors
+            - unless @experiment_errors[:warnings].empty?
+              .text-warning
+                %h6
+                  = "#{@experiment.name} contains the following warnings:"
+                
+                %ul
+                  - @experiment_errors[:warnings].each do |e|
+                    %li
+                      = e
+            - unless @experiment_errors[:errors].empty?
+              .text-danger
+                %h6
+                  = "#{@experiment.name} contains the following errors:"
+                
+                %ul
+                  - @experiment_errors[:errors].each do |e|
+                    %li
+                      = e
+            - if @experiment_errors[:errors].empty? and not @experiment_errors[:warnings].empty?
+              = link_to 'Publish anyway', complete_experiment_path(:id => @experiment.id, :force => 1), class: 'btn btn-outline-danger'
+
+        
+      .col-sm-2.p-3
+        = link_to 'Publish', complete_experiment_path(:id => @experiment.id, :force => 0), data: {confirm: 'Are you sure? The experiment will no longer be editable. This action cannot be undone.'}, class: 'btn btn-outline-success'
+      
+%br
+
+= render partial: 'partials/index_tasks', locals: {taskable: @experiment}
+
+.modal.fade{:id => "terms"}
+  .modal-dialog
+    .modal-content
+      .modal-header
+        %h5.modal-title
+          Consent terms
+      .modal-body
+        = @experiment.terms
+      .modal-footer
+        = dismiss_modal_button

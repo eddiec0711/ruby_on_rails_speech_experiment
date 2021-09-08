@@ -1,0 +1,10 @@
+- low = new.scale.low
+- high = new.scale.high
+- max = new.scale.bins
+
+.d-flex.justify-content-center.my-3
+  %span.font-weight-bold.mr-2
+    = low
+  = @r.range_field :answer, in: 1..max, step: 1, class: "custom-range w-75", id: "range"
+  %span.font-weight-bold.ml-2
+    = high

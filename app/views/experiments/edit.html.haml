@@ -1,0 +1,11 @@
+%h2 Edit Experiment
+
+= simple_form_for @experiment do |f|
+  = f.error_notification
+
+  .form-inputs
+    = f.input :name, error: "Name required"
+    = f.input :description
+
+  .form-actions
+    = f.button :submit, "Edit Experiment"

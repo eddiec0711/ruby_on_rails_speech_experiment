@@ -1,0 +1,43 @@
+%h3
+  All registered users (researchers)
+
+%table.table.table-striped
+  %thead
+    %tr
+      %th{scope:'col'} Name
+      %th{scope:'col'} Country
+      %th{scope:'col'} Institution
+      %th{scope:'col'} Email
+      %th{scope:'col'} Registration Date
+      %th{scope:'col'} Admin?
+      %th{scope:'col'} More
+      %th{scope:'col'} Delete
+
+  %tbody
+    - @users.each do |u|
+      %tr
+        %td{scope:'row'}
+          = u.name
+        %td
+          = u.country
+        %td
+          = u.institution
+        %td
+          = u.email
+        %td
+          = u.created_at
+        %td
+          - if u.admin
+            %div{style: 'color: red'}
+              True
+          - else
+            = link_to 'Set Admin',set_admin_path(:user_id => u.id), method: :post,  data: { confirm: "Are you sure? Admin status will give this person the same permissions as you have."}
+        %td 
+          = link_to 'See more', view_user_path(:user_id => u.id), class: 'ajax-modal'
+        %td 
+          = link_to 'Delete', delete_user_path(:user_id => u.id), method: :post,  data: { confirm: "Are you sure? This action will alse remove all user's experimetns and (if admin) invitations."}
+            
+          
+
+          
+

@@ -1,0 +1,75 @@
+.text-center
+  .data{"listens" => "#{@task.listens}"}
+  .player
+    = audio_tag rails_blob_url @sample.audio 
+  %br
+  %canvas#progress{:height => "100", :width => "500"}
+  %br
+  .listens_counter
+    %b
+  %br/
+  %span#current-time
+  \/
+  %span#duration
+  %br/
+  
+  .btn.btn-outline-secondary#audioControl{:onclick => "play()"} Play  
+  
+:javascript
+    var played_once = false;
+    var canvasWidth = 500;
+    var audioEl = $(".player").children('audio')[0];
+    var canvas = document.getElementById("progress").getContext('2d');
+    $(".player").children('audio')[0].ontimeupdate = updateBar;
+    
+    var listens = parseInt($(".data").attr("listens"));
+    $('.listens_counter').find('b').text('Listens left: ' + listens);
+
+    audioEl.addEventListener('loadedmetadata', function() {
+      var duration = audioEl.duration
+      var currentTime = audioEl.currentTime
+      document.getElementById("duration").innerHTML = convertElapsedTime(duration)
+      document.getElementById("current-time").innerHTML = convertElapsedTime(currentTime)
+      canvas.fillRect(0, 0, canvasWidth, 50);
+    });
+	
+    function play(){
+        if(listens > 0){
+            audioEl.currentTime = 0;
+            audioEl['play']();
+            listens = listens - 1;
+            $('.listens_counter').find('b').text('Listens left: ' + listens);
+        }
+    }
+	
+    function updateBar() {
+      canvas.clearRect(0, 0, canvasWidth, 50)
+      canvas.fillStyle = "#000";
+      canvas.fillRect(0, 0, canvasWidth, 50)
+      
+      var currentTime = audioEl.currentTime
+      var duration = audioEl.duration
+      
+      document.getElementById("current-time").innerHTML = convertElapsedTime(currentTime)
+      
+      var percentage = currentTime / duration
+      var progress = (canvasWidth * percentage)
+      canvas.fillStyle = "#FF0000"
+      canvas.fillRect(0, 0, progress, 50)
+    }
+
+    function convertElapsedTime(inputSeconds) {
+      var seconds = Math.floor(inputSeconds % 60)
+      if (seconds < 10) {
+        seconds = "0" + seconds
+      }
+      var minutes = Math.floor(inputSeconds / 60)
+      return minutes + ":" + seconds
+    }
+
+
+%br
+.text-center
+  = link_to 'Next', next_task(@task.taskable, params[:participant_id]), class: "btn btn-primary", role: "button"
+%br
+

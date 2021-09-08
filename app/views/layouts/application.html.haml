@@ -1,0 +1,99 @@
+!!!
+%html
+  %head
+    %title Project - #{content_for(:title)}
+    %meta{ name: "viewport", content: "width=device-width, initial-scale=1.0" }
+    %meta{ :'http-equiv' => 'X-UA-Compatible', content: 'IE=edge' }
+    %meta{:content => "text/html; charset=utf-8", "http-equiv" => "content-type"}
+    = stylesheet_link_tag    "application", media: :all
+    = javascript_include_tag "application"
+    = render 'application/favicon'
+    = csrf_meta_tags
+
+  %body{ class: environment_notice_body_class }
+    = render 'layouts/environment_notice'
+    .flash-messages
+      - flash.each do |name, msg|
+        - next unless name == 'alert' || name == 'notice'
+        .alert.fade.in
+          .container
+            - if name == 'notice'
+              = icon('fas', 'check', class: 'flash-success')
+            - else
+              = icon('fas', 'exclamation-triangle', class: 'flash-error')
+            = msg
+            %a{ href: '#', title: 'Hide this message', data: { dismiss: :alert } } Dismiss
+
+    #wrap
+      %header
+        %nav#main-nav.navbar.navbar-dark.bg-dark.navbar-expand-lg.fixed-top
+          .container
+            .navbar-header
+              = link_to :root, class: 'navbar-brand hidden-sm' do
+                SLIC
+            %button.navbar-toggler{ aria: { controls: "navbar-content", expanded: false, label: "Toggle navigation" }, data: { target: "#navbar-content", toggle: "collapse" }, type: "button" }
+              %span.navbar-toggler-icon
+
+            .collapse.navbar-collapse#navbar-content
+              %ul.nav.navbar-nav
+                = navbar_link_to :root, title: "Go to the home page",identifier: "home" do
+                  = icon 'fas', 'home'
+                  Home
+                = navbar_link_to :contact_us, title: "See contact us page",identifier: "contact_us" do
+                  = icon 'fas', 'info-circle'
+                  Contact us
+                - if user_signed_in?
+                  = navbar_link_to experiments_path, title: "View Your Experiments",identifier: "experiments" do
+                    = icon 'fas', 'tachometer-alt'
+                    Experiments
+                  - if current_user.admin
+                    %ul.navbar-nav.ml-auto
+                      %li{class: "nav-item dropdown #{'active' if 'admin_tools' == @current_nav_identifier.to_s}"}
+                        = link_to '#', aria: { haspopup: true, expanded: false }, data: { toggle: :dropdown }, class: 'nav-link dropdown-toggle', role: 'button' do
+                          = icon 'fas', 'angle-double-up'
+                          Admin tools
+                          %b.caret
+                        .dropdown-menu
+                          = link_to admin_see_users_path, class: 'dropdown-item', title: "See all users" do
+                            All users
+                          .dropdown-divider
+                          = link_to researcher_invitations_path, class: 'dropdown-item', title: "See invitations" do
+                            Invitations
+
+                      
+              - if user_signed_in?
+                %ul.nav.navbar-nav.ml-auto
+                  %li.nav-item.dropdown
+                    = link_to '#', aria: { haspopup: true, expanded: false }, data: { toggle: :dropdown }, id: 'navbar-user-link', class: 'nav-link dropdown-toggle', role: 'button' do
+                      = icon 'fas', 'user', current_user.email
+                      %b.caret
+                    .dropdown-menu{ aria: { labelledby: '#navbar-user-link' } }
+                      = link_to edit_user_registration_path, class: 'dropdown-item', method: :get, title: "Change user settings" do
+                        = icon 'fas', 'cogs', 'Settings'
+                      .dropdown-divider
+                      = link_to destroy_user_session_path, class: 'dropdown-item', method: :delete, title: "Log out of the system" do
+                        = icon 'fas', 'sign-out-alt', 'Log out'
+              - else
+                %ul.nav.navbar-nav.ml-auto
+                  %li.nav-item.dropdown
+                    = navbar_link_to user_session_path, title: "Log in", identifier: 'log_in' do
+                      = icon 'fas', 'sign-in-alt'
+                      Log in
+                    = navbar_link_to new_user_registration_path, title: "Sign up", identifier: 'sign_up' do
+                      = icon 'fas', 'user-plus'
+                      Sign up
+
+      %main
+        #main-container.container
+          = yield
+
+    %footer#footer
+      .container
+        .float-left
+          &copy; #{Date.today.year} Eddie Chieng, Harry Woods, Hubert Krawczyk, Jedrzej Mikolajczyk, epigenesys
+        .float-right
+          = link_to :documentation, title: "See the documentation", class: 'navbar-brand hidden-sm' do
+            = icon 'fas', 'book'
+            User guide
+        
+          

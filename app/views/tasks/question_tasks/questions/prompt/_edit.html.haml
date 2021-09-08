@@ -1,0 +1,8 @@
+= form_with model: @edit, url: question_path(:id => @edit.id), scope: :question, local: true do |f|
+  %td
+    %i.fas.fa-bars.grabbable
+  %td{scope:'row'}
+    = f.text_field :prompt
+    = f.submit "Save prompt", class: "btn btn-outline-secondary"
+  %td
+    = @edit.type_name

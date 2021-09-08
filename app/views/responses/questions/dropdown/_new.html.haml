@@ -1,0 +1,2 @@
+.form-group
+  = @r.select :answer, new.options.collect{|o| o.contents}, {}, {class: "form-control"}

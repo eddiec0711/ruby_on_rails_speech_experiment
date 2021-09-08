@@ -1,0 +1,39 @@
+%h3
+  Your invitations
+
+%table.table.table-striped
+  %thead
+    %tr
+      %th{scope:'col'} Code
+      %th{scope:'col'} Link
+      %th{scope:'col'} Used?
+      %th{scope:'col'} Created at
+      %th{scope:'col'} Delete
+
+  %tbody
+    - @invitations.each do |i|
+      %tr
+        %td{scope:'row'}
+          = i.registration_code
+        %td
+          = i.get_link
+        - if i.used
+          %td.text-secondary.used-value
+            True
+        - else
+          %td.text-success.used-value
+            False
+        %td
+          = i.created_at
+        %td
+          = link_to 'Destroy', i, method: :delete, data: { confirm: 'Are you sure?' }
+
+= form_for @invitation, url: researcher_invitations_path do |f|
+  .form-inputs
+    = f.submit 'Create New Invitation'
+
+
+
+
+          
+

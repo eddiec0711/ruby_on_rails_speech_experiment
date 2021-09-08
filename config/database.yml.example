@@ -1,0 +1,17 @@
+development:
+  adapter: sqlite3
+  database: db/development.sqlite3
+  min_messages: warning
+
+test:
+  adapter: sqlite3
+  database: db/test.sqlite3
+  min_messages: warning
+
+production:
+  adapter: postgresql
+  database: slic
+  host: localhost
+  min_messages: warning
+  username: username
+  password: password

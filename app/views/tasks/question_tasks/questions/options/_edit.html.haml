@@ -1,0 +1,7 @@
+- @edit.options.each do |o|
+  = o.contents
+  = link_to 'Delete', option_path(:id => o.id), method: :delete, data: {disable_with: "Deleting..."}
+  %br
+= form_with model: Option.new, url: add_option_path(:id => @edit.id), scope: :option, local: true do |f|
+  = f.text_field :contents
+  = f.submit "Add", class: "btn btn-outline-secondary"

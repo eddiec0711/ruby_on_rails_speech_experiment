@@ -1,0 +1,5 @@
+%br
+- new.options.each do |o|
+  = @r.check_box :answer, {multiple:true}, o.contents, nil
+  = @r.label o.contents
+  %br

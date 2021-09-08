@@ -1,0 +1,18 @@
+- @edit = edit
+%tr{id: @edit.sortable_id}
+  = render 'tasks/question_tasks/questions/prompt/edit'
+  %td
+
+    = form_with model: edit.scale, url: edit_scale_path(:id => @edit.id), id: "change-scale", local: true do |f|
+      From: 
+      = f.text_field :low
+      %br
+      Number of options: 
+      = f.number_field :bins, size: 2
+      = f.submit "Save scale", class: "btn btn-outline-secondary"
+      %br
+      To:
+      = f.text_field :high
+  %td
+    = render 'tasks/question_tasks/questions/shared/delete'
+    

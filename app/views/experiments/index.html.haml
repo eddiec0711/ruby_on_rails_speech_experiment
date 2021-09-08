@@ -1,0 +1,27 @@
+%h3
+  Experiments
+
+%table.table.table-striped
+  %thead
+    %tr
+      %th{scope:'col'} Name
+      %th{scope:'col'} Description
+      %th{scope:'col'} Status
+      %th{scope:'col'} Delete
+
+  %tbody
+    - @experiments.each do |e|
+      %tr
+        %td{scope:'row'}
+          = link_to e.name, experiment_path(e)
+        %td
+          = e.description
+        %td
+          - if e.complete
+            Published
+          - else
+            Editing
+        %td
+          = link_to('Delete', experiment_path(e), method: 'delete', data: {confirm: 'Are you sure? This action cannot be undone.'}, class: 'btn btn-outline-danger')
+          
+= link_to('New Experiment', new_experiment_path, class: 'btn btn-outline-primary')

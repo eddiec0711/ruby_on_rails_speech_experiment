@@ -1,0 +1,8 @@
+%br
+- new.options.each_with_index do |o, index|
+  - if index == 0
+    = @r.radio_button :answer, o.contents, checked: true
+  - else
+    = @r.radio_button :answer, o.contents
+  = @r.label o.contents   
+  %br

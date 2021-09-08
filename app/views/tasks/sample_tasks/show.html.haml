@@ -1,0 +1,42 @@
+.sample_head
+  = render 'tasks/partials/task_back_button'
+  .container
+    .row
+      .col-sm-5
+        = render 'tasks/partials/task_header'
+      .col-sm-7.pl-5
+        %h3
+          Audio file
+        - if @task.specific.audio.attached?
+          = @task.specific.audio.filename
+          - unless @task.taskable.complete
+            = link_to "Delete", destroy_audio_path(:id => @task.specific.id), method: 'delete', class: 'btn btn-outline-danger btn-sm'
+        - unless @task.taskable.complete
+          = form_with model: @task.specific, url: upload_audio_path(:id => @task.specific.id), scope: :task, local: true do |f|
+            = f.file_field :audio, accept: "audio/*", required: true, onChange: "this.form.submit()"
+          - unless @audioError.nil?
+            = @audioError
+        %br
+        %h3
+          Transcript file
+        - if @task.specific.transcript.attached?
+          = @task.specific.transcript.filename
+          - unless @task.taskable.complete
+            = link_to "Delete", destroy_transcript_path(:id => @task.specific.id), method: 'delete', class: 'btn btn-outline-danger btn-sm'
+        - unless @task.taskable.complete
+          = form_with model: @task.specific, url: upload_transcript_path(:id => @task.specific.id), scope: :task, local: true do |f|
+            = f.file_field :transcript, accept: ".eaf", required: true, onChange: "this.form.submit()"
+          - unless @transcriptError.nil?
+            = @transcriptError
+        %br
+        - if @task.taskable.complete
+          - if @task.calibration
+            %br
+            This is a calibration sample
+        - else
+          = form_with model: @task, url: sample_calibration_path(@task), scope: :task do |f|
+            = f.label "This is a calibration sample"
+            = f.check_box :calibration, {onChange:"this.form.submit()"}
+
+
+= render partial: 'partials/index_tasks', locals: {taskable: @task.specific}
